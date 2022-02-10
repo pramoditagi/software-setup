@@ -9,7 +9,7 @@ Before installing anything, some command line tools need to be installed on your
 ### Homebrew
 Installing packages and software for OS X can be a challenge because OS X lacks a package manager similar to Linux systems. `Homebrew` solves this problem. Installation is as simple as the following command from a Terminal window.
 
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 After installing Homebrew, there are some additional commands to run. They essentially provide more repos from which to install packages. Run the following commands from your terminal.
 
@@ -36,23 +36,22 @@ After git is installed, you need to configure it as follows. Replace the dummy d
 
 If you want to use SSH for communicating with Github, then follow the instructions below. Otherwise, you can use the Git Configuration from Web Developer - Getting Started to setup HTTPS communication with Github. It's a personal preference and either one will work.
 
-### Tab Completion
-When working in a Terminal it is extremely helpful to use Tab to complete commands. Install the following utility to get complete all bash commands including Git branches (which comes in handy).
-
-    brew install bash-completion
-
-After that completes, there will be instructions on adding a snippet of code to your ~/.bash_profile so that it works in a shell. The snippet was the following at the time of writing this guide. Defer to the commands instructions.
-
-Add the following line to your ~/.bash_profile:
-
-    [[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
-
-
 SSH Configuration
 If you want to use SSH, I recommend that you follow the SSH key generation section from Github. It is basically just running ssh-keygen. I usually DO NOT enter a passphrase when prompted because it kind of defeats the purpose of avoiding to enter your password each time you want to make git requests. If that makes you uncomfortable, then I suggest you just go with the HTTPS configuration mentioned above.
 
 After the SSH key is setup, you need to add the SSH key to your Github account. If you do not have a Github account, then follow the instructions on the Github section of Web Developer - Getting Started. You can continue on with other portions of this setup guide until that account is created and come back to this when you account is ready. Once you have a Github account, you can add the SSH key by following Adding a new SSH key instructions on Github. The only thing different is that you go to https://github.cerner.com/settings/ssh instead of github.com to add your key.
 
+### Tab Completion
+When working in a Terminal it is extremely helpful to use Tab to complete commands. Install the following utility to get complete all bash commands including Git branches (which comes in handy). Type in terminal 
+
+    atom ~/.inputrc
+Paste the following on separate lines
+
+    set completion-ignore-case on
+    set show-all-if-ambiguous on
+    TAB: menu-complete
+
+Hit `command+s` to save changes to .inputrc. Open a new Terminal window or tab to open a new session with autocomplete enabled.Type and hit the tab key
 
 ### Java
 Our REST services are coded with Java, OS X does not include a JDK for development so you need to install Java with the following command. We are currently on java 8, but "brew cask install java" currently pulls down java 9, so specify java8 in the command (as shown below). Note - We have edited this command on 9-Aug-2021 to ensure we are using adoptopenjdk8 instead of java8
@@ -76,15 +75,25 @@ After installing RVM, open a new terminal window and run the following command t
 ### NodeJS
 In our application, we rely on extensive Javascript so we have a need to install NodeJS on our development machines. We use NVM to manage multiple versions of NodeJS similar to RVM for Ruby. Install NVM by following the command on https://github.com/creationix/nvm. The command was this at the time the guide was written so defer to the NVM documentation.
 
-    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.4/install.sh | bash
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 After installing NVM, open a new terminal window and run the following command to install the version of NodeJS that we currently use. Always check https://github.cerner.com/GenomicSolutions/lims-app/blob/master/.nvmrc for the exact version of NodeJS we are using as it will probably be different than what is below.
 
     nvm install 10.22.0
 If you have restarted your terminal and it still thinks nvm is not a command then you may need to add the line below to your ~/.bash_profile. The curl install command above automatically adds export lines to .bashrc which may not be used automatically for your terminal on a mac.
 
     source ~/.bashrc
+If using zshrc, then
 
-You can refer to Javascript Ecosystem for details about how Javascript is used at Cerner and other tools available.
+    source ~/.zshrc
+
+After running above commands, restart terminal. Type below commands to verify `node` and `nvm` versions.
+
+    nvm -v
+    node -v
+You should be able to see something like this.
+
+    0.39.1
+    v10.22.0
 
 ### Maven
 We use Maven to manage Java projects.
@@ -95,10 +104,20 @@ We use Maven to manage Java projects.
 We use MySQL for our database backing our services.
 
     brew install mysql@5.7
-After installed, run the following command to make sure MySQL runs at startup
+After installed, run the following commands shown in the terminal to export few things to zshrc or bashrc. Run the following commands as well to make sure MySQL runs at startup
 
+    echo 'export PATH="/usr/local/opt/mysql@5.7/bin:$PATH"' >> ~/.zshrc
+    export LDFLAGS="-L/usr/local/opt/mysql@5.7/lib"
+    export CPPFLAGS="-I/usr/local/opt/mysql@5.7/include"
+    export PKG_CONFIG_PATH="/usr/local/opt/mysql@5.7/lib/pkgconfig"
     brew tap homebrew/services
     brew services start mysql@5.7
+
+Restart terminal and type
+
+    mysql -uroot
+Verify you are able to see mysql running.
+
 If you get,
 
 **_-bash: mysql: command not found error while starting MySQL_**, then run the following command to link the MySQL to 5.6 version
@@ -148,7 +167,6 @@ After installing postman application, open postman application, go to settingsâ†
 Do this only if necessary, first check if Yarn is installed or not by running yarn -v command. If you dont get versions for example 1.22.11 etc then run the following command to install yarn from homebrew -
 
     brew install yarn
-
 
 ### Miscellaneous
 The following tools are all optional and you will find some of them listed on https://connect.ucern.com/thread/725668. Below are a couple that can easily be installed via Cask.
